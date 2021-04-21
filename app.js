@@ -3,6 +3,11 @@
 
 // the main use of express is to send files (like index.html) form server to client not the data.
 
+var mongojs = require('mongojs');
+var db = mongojs('localhost:27017/myGame', ['account','progress']);
+
+
+
 var express = require('express');
 const { addListener } = require('process');
 // const { match } = require('node:assert');
@@ -234,7 +239,7 @@ Bullet.update = function() {
 }
 
 // #############################################################################
-//                               socket Handler
+//                               LOGIN HANDLERS
 // #############################################################################
 
 var USERS = {
@@ -244,23 +249,36 @@ var USERS = {
 }
 
 var isValidPassword = function(data, cb) {
-    setTimeout(function() {
-        cb(USERS[data.username] === data.password);
-    },10);
+    db.account.find({username:data.username, password:data.password}, function(err, res) {
+        if(res.length > 0) {
+            cb(true);
+        }
+        else {
+            cb(false);
+        }
+    });
 }
 
 var isUsernameTaken = function(data, cb) {
-    setTimeout(function() {
-        cb(USERS[data.username]);
-    },10);
+    db.account.find({username:data.username}, function(err, res) {
+        if(res.length > 0) {
+            cb(true);
+        }
+        else {
+            cb(false);
+        }
+    });
 }
 
 var addUser = function(data, cb) {
-    setTimeout(function() {
-        USERS[data.username] = data.password;
-        cb()
-    },10);
+    db.account.insert({username:data.username, password:data.password}, function(err) {
+       cb(); 
+    })
+
 }
+// #############################################################################
+//                               socket Handler
+// #############################################################################
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket){
