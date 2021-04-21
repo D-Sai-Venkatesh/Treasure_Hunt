@@ -124,6 +124,13 @@ var Player = function(id) {
 
     Player.list[id] = self;
 
+    initPack.player.push({
+		id:self.id,
+		x:self.x,
+		y:self.y,	
+		number:self.number,	
+	});
+
     return self;
 }
 
@@ -157,6 +164,7 @@ Player.onConnect = function(socket){
 
 Player.onDisconnect = function(socket) {
     delete Player.list[socket.id];
+    removePack.player.push(socket.id);
 }
 
 Player.update = function() {
@@ -168,9 +176,9 @@ Player.update = function() {
         player.update();
 
         pack.push({
+            id:player.id,
             x:player.x,
-            y:player.y,
-            number:player.number   
+            y:player.y,   
         })
     }
 
@@ -210,6 +218,13 @@ var Bullet = function(parent, angle) {
     }
 
     Bullet.list[self.id] = self;
+
+    initPack.bullet.push({
+		id:self.id,
+		x:self.x,
+		y:self.y,		
+	});
+
     return self;
 }
 
@@ -227,9 +242,11 @@ Bullet.update = function() {
 
         if(bullet.toRemove){
             delete Bullet.list[i];
+            removePack.bullet.push(bullet.id);
         }
         else {
             pack.push({
+                id:bullet.id,
                 x:bullet.x,
                 y:bullet.y
             });
@@ -354,6 +371,9 @@ io.sockets.on('connection', function(socket){
 // #############################################################################
 
 
+var initPack = {player:[],bullet:[]};
+var removePack = {player:[],bullet:[]};
+
 // this function will be called every 40 ms that is 1000/25
 setInterval(function() {
 
@@ -366,7 +386,14 @@ setInterval(function() {
 
     for(var i in SOCKET_LIST) {
         socket = SOCKET_LIST[i];
-        socket.emit('newPositions', pack)
+        socket.emit('init',initPack);
+		socket.emit('update',pack);
+		socket.emit('remove',removePack);
     }
+
+    initPack.player = [];
+	initPack.bullet = [];
+	removePack.player = [];
+	removePack.bullet = [];
 
 },1000/25)
