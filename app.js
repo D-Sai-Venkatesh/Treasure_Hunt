@@ -207,6 +207,13 @@ io.sockets.on('connection', function(socket){
     
     Player.onConnect(socket);
 
+    socket.on('sendMsgToServer', function(data) {
+        var playerName = ("" + socket.id).slice(2,7);
+
+        for(var i in SOCKET_LIST) {
+            SOCKET_LIST[i].emit('addToChat', playerName + ": " + data);
+        }
+    }) 
 
     socket.on('disconnect', function() {
         delete SOCKET_LIST[socket.id]
