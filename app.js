@@ -26,6 +26,8 @@ console.log("Server Started");
 
 var SOCKET_LIST = {};
 
+var DEBUG = true;
+
 // #############################################################################
 //                               ENTITY INTERFACE
 // #############################################################################
@@ -213,6 +215,16 @@ io.sockets.on('connection', function(socket){
         for(var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit('addToChat', playerName + ": " + data);
         }
+    }) 
+
+    socket.on('evalServer', function(data) {
+        
+        if(!DEBUG){
+            return ;
+        }
+        
+        var res = eval(data);
+        socket.emit('evalAnswer',res);
     }) 
 
     socket.on('disconnect', function() {
