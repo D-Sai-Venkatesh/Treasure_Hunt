@@ -25,58 +25,88 @@ console.log("Server Started");
 // server are stored
 
 var SOCKET_LIST = {};
-var PLAYER_LIST = {};
 
-var Player = function(id) {
+// #############################################################################
+//                               ENTITY INTERFACE
+// #############################################################################
+
+var Entity = function() {
     var self = {
         x:250,
         y:250,
-        id:id,
-        number:"" + Math.floor(10 * Math.random()),
-
-        pressingRight:false,
-        pressingLeft:false,
-        pressingUp: false,
-        pressingDown:false,
-        maxSpd:10
+        spdX:0,
+        spdY:0,
+        id:"",
     }
 
-    self.updatePosition = function() {
-        if(self.pressingRight){
-            self.x += self.maxSpd;
-        }
-        if(self.pressingLeft){
-            self.x -= self.maxSpd;
-        }
-        if(self.pressingUp){
-            self.y -= self.maxSpd;
-        }
-        if(self.pressingDown){
-            self.y += self.maxSpd;
-        }
+    self.update = function(){
+        self.updatePosition();
+    }
+
+    self.updatePosition = function(){
+        self.x += self.spdX;
+        self.y += self.spdY;
     }
 
     return self;
 }
 
 
-var io = require('socket.io')(serv,{});
-io.sockets.on('connection', function(socket){
-    
-    // here we are assignind id and other parameters related to socket(client)
-    socket.id = Math.random();
-    SOCKET_LIST[socket.id] = socket;    
-    
+// #############################################################################
+//                               PLAYER CLASS
+// #############################################################################
+
+var Player = function(id) {
+    var self = Entity();
+    self.id = id;
+    self.number = "" + Math.floor(10 * Math.random());
+    self.pressingRight = false;
+    self.pressingLeft = false;
+    self.pressingUp = false;
+    self.pressingDown = false;
+    self.maxSpd = 10;
+
+
+    var super_update = self.update;
+    self.update = function() {
+        self.updateSpd();
+        super_update();
+    }
+
+    self.updateSpd = function() {
+        if(self.pressingRight) {
+            self.spdX = self.maxSpd;
+        }
+        else if (self.pressingLeft) {
+            self.spdX = -self.maxSpd;
+        }
+        else {
+            self.spdX = 0;
+        }
+
+
+        if(self.pressingDown) {
+            self.spdY = self.maxSpd;
+        }
+        else if (self.pressingUp) {
+            self.spdY = -self.maxSpd;
+        }
+        else {
+            self.spdY = 0;
+        }
+
+    }
+
+    Player.list[id] = self;
+
+    return self;
+}
+
+Player.list = {};
+
+Player.onConnect = function(socket){
     var player = Player(socket.id);
-    PLAYER_LIST[socket.id] = player;
 
-    console.log('socket connection')
-
-    socket.on('disconnect', function() {
-        delete SOCKET_LIST[socket.id]
-        delete PLAYER_LIST[socket.id]
-    })
-    
     socket.on('keyPress', function(data) {
         if(data.inputId === 'left'){
             player.pressingLeft = data.state;
@@ -91,20 +121,20 @@ io.sockets.on('connection', function(socket){
             player.pressingDown = data.state;
         }
     })
+    
+}
 
-  
-})
+Player.onDisconnect = function(socket) {
+    delete Player.list[socket.id];
+}
 
-
-
-// this function will be called every 40 ms that is 1000/25
-setInterval(function() {
-
+Player.update = function() {
     var pack = [];
-    for(var i in PLAYER_LIST){
-        var player = PLAYER_LIST[i];
 
-        player.updatePosition();
+    for(var i in Player.list){
+        var player = Player.list[i];
+
+        player.update();
 
         pack.push({
             x:player.x,
@@ -112,6 +142,47 @@ setInterval(function() {
             number:player.number   
         })
     }
+
+    return pack;
+}
+
+
+// #############################################################################
+//                               socket Handler
+// #############################################################################
+
+
+var io = require('socket.io')(serv,{});
+io.sockets.on('connection', function(socket){
+    
+    // here we are assignind id and other parameters related to socket(client)
+    socket.id = Math.random();
+    SOCKET_LIST[socket.id] = socket;    
+    
+    Player.onConnect(socket);
+
+
+    socket.on('disconnect', function() {
+        delete SOCKET_LIST[socket.id]
+        Player.onDisconnect(socket)
+    })
+    
+    
+
+  
+})
+
+// #############################################################################
+//                               UPDATE LOOP
+// #############################################################################
+
+
+// this function will be called every 40 ms that is 1000/25
+setInterval(function() {
+
+    var pack = Player.update();
+
+    
 
     for(var i in SOCKET_LIST) {
         socket = SOCKET_LIST[i];
