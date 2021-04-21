@@ -4,6 +4,7 @@
 // the main use of express is to send files (like index.html) form server to client not the data.
 
 var express = require('express');
+const { addListener } = require('process');
 // const { match } = require('node:assert');
 var app = express();
 // here we are creating an express server 
@@ -236,6 +237,30 @@ Bullet.update = function() {
 //                               socket Handler
 // #############################################################################
 
+var USERS = {
+    "bob":"asd",
+    "bob2":"bob",
+    "bob3":"ttt",
+}
+
+var isValidPassword = function(data, cb) {
+    setTimeout(function() {
+        cb(USERS[data.username] === data.password);
+    },10);
+}
+
+var isUsernameTaken = function(data, cb) {
+    setTimeout(function() {
+        cb(USERS[data.username]);
+    },10);
+}
+
+var addUser = function(data, cb) {
+    setTimeout(function() {
+        USERS[data.username] = data.password;
+        cb()
+    },10);
+}
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket){
@@ -243,8 +268,40 @@ io.sockets.on('connection', function(socket){
     // here we are assignind id and other parameters related to socket(client)
     socket.id = Math.random();
     SOCKET_LIST[socket.id] = socket;    
+
+
+    socket.on('signIn', function(data) {
+        isValidPassword(data, function(res) {
+            
+            if(res) {
+                Player.onConnect(socket);
+                socket.emit('signInResponse', {success:true});
+            }
+            else
+            {
+                socket.emit('signInResponse', {success:false});
+            }
+        })
+        
+    })
+
+    socket.on('signUp', function(data) {
+        
+        isUsernameTaken(data, function(res){
+            if(res) {
+                socket.emit('signUpResponse', {success:false});
+            }
+            else
+            {
+                addUser(data, function() {
+                    socket.emit('signUpResponse', {success:true});
+                });
+            }
+        })
+        
+    })
+
     
-    Player.onConnect(socket);
 
     socket.on('sendMsgToServer', function(data) {
         var playerName = ("" + socket.id).slice(2,7);
