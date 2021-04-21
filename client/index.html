@@ -28,9 +28,11 @@
     //     });
     // }
 
+
     socket.on('newPositions', function(data){
         ctx.clearRect(0,0,500,500);
         
+
         for(var i = 0; i < data.player.length; i++){
             ctx.fillText(data.player[i].number, data.player[i].x, data.player[i].y);
         }
@@ -87,6 +89,22 @@
         else if(event.keyCode === 87) {
             socket.emit('keyPress', {inputId:'up', state:false});
         }
+    }
+
+    document.onmousedown = function(event) {
+        socket.emit('keyPress', {inputId:'attack', state:true})
+    }
+    
+    document.onmouseup = function(event) {
+        socket.emit('keyPress', {inputId:'attack', state:false})
+    }
+
+    document.onmousemove = function(event) {
+        var x = -250 + event.clientX - 8;
+        var y = -250 + event.clientY - 8;
+
+        var angle = Math.atan2(y,x) / Math.PI * 180;
+        socket.emit('keyPress', {inputId:'mouseAngle', state:angle});
     }
 
 
