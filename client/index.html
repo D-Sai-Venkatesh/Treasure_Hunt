@@ -32,7 +32,7 @@
 		<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
 			<div>Hello!</div>
 		</div>
-
+        <div id="inventory"></div>
 		<form id="chat-form">
 			<input id="chat-input" type="text" style="width:500px"></input>
 		</form>
@@ -41,8 +41,9 @@
 
 
 
-<script src="/socket.io/socket.io.js">
-</script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/client/Inventory.js"></script>
+
 
 <script>
     var WIDTH = 500;
@@ -144,6 +145,12 @@
     // #############################################################################
     //                               GAME LOGIC
     // #############################################################################
+    var inventory = new Inventory(null);
+	socket.on('updateInventory',function(items){
+		inventory.items = items;
+		inventory.refreshRender();
+	});
+    
     var Img = {};
 	Img.player = new Image();
 	Img.player.src = '/client/img/player.png';
