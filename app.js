@@ -23,7 +23,10 @@ app.get('/', function (req, res){
 // if request is for /client then it will the folder to client
 app.use('/client', express.static(__dirname + '/client'));
 
-serv.listen(2000);
+// serv.listen(2000);
+serv.listen(process.env.PORT || 2000);
+
+
 console.log("Server Started");
 
 
@@ -38,14 +41,26 @@ var DEBUG = true;
 //                               ENTITY INTERFACE
 // #############################################################################
 
-var Entity = function() {
+var Entity = function(param) {
     var self = {
         x:250,
         y:250,
         spdX:0,
         spdY:0,
         id:"",
+        map:'forest',
     }
+
+    if(param){
+		if(param.x)
+			self.x = param.x;
+		if(param.y)
+			self.y = param.y;
+		if(param.map)
+			self.map = param.map;
+		if(param.id)
+			self.id = param.id;		
+	}
 
     self.update = function(){
         self.updatePosition();
@@ -69,10 +84,10 @@ var Entity = function() {
 //                               PLAYER CLASS
 // #############################################################################
 
-var Player = function(id) {
-    var self = Entity();
-    self.id = id;
+var Player = function(param) {
+    var self = Entity(param);
     self.number = "" + Math.floor(10 * Math.random());
+    self.username = param.username;
     self.pressingRight = false;
     self.pressingLeft = false;
     self.pressingUp = false;
@@ -95,9 +110,13 @@ var Player = function(id) {
     }
 
     self.shootBullet = function(angle) {
-        var b = Bullet(self.id, angle);
-        b.x = self.x;
-        b.y = self.y;
+        Bullet({
+			parent:self.id,
+			angle:angle,
+			x:self.x,
+			y:self.y,
+            map:self.map,
+		});
     }
 
     self.updateSpd = function() {
@@ -133,6 +152,7 @@ var Player = function(id) {
 			hp:self.hp,
 			hpMax:self.hpMax,
 			score:self.score,
+            map:self.map,
 		};		
 	}
 
@@ -143,10 +163,11 @@ var Player = function(id) {
 			y:self.y,
             hp:self.hp,
 			score:self.score,
+            map:self.map,
 		}	
 	}
 
-    Player.list[id] = self;
+    Player.list[self.id] = self;
 
     initPack.player.push(self.getInitPack());
 
@@ -156,9 +177,17 @@ var Player = function(id) {
 
 Player.list = {};
 
-Player.onConnect = function(socket){
-    var player = Player(socket.id);
+Player.onConnect = function(socket,username){
+    var map = 'forest';
+	if(Math.random() < 0.5)
+		map = 'field';
 
+    
+    var player = Player({
+        username:username,
+		id:socket.id,
+        map:map,
+	});
     socket.on('keyPress', function(data) {
         if(data.inputId === 'left'){
             player.pressingLeft = data.state;
@@ -180,6 +209,31 @@ Player.onConnect = function(socket){
         }
     })
 
+    socket.on('changeMap',function(data){
+		if(player.map === 'field')
+			player.map = 'forest';
+		else
+			player.map = 'field';
+	});
+
+    socket.on('sendMsgToServer',function(data){
+		for(var i in SOCKET_LIST){
+			SOCKET_LIST[i].emit('addToChat',player.username + ': ' + data);
+		}
+	});
+
+    socket.on('sendPmToServer',function(data){ //data:{username,message}
+		var recipientSocket = null;
+		for(var i in Player.list)
+			if(Player.list[i].username === data.username)
+				recipientSocket = SOCKET_LIST[i];
+		if(recipientSocket === null){
+			socket.emit('addToChat','The player ' + data.username + ' is not online.');
+		} else {
+			recipientSocket.emit('addToChat','From ' + player.username + ':' + data.message);
+			socket.emit('addToChat','To ' + data.username + ':' + data.message);
+		}
+	});
 
     socket.emit('init',{
         selfId:socket.id,
@@ -221,12 +275,13 @@ Player.update = function() {
 //                               BULLET CLASS
 // #############################################################################
 
-var Bullet = function(parent, angle) {
-    var self = Entity();
+var Bullet = function(param) {
+    var self = Entity(param);
     self.id = Math.random();
-    self.spdX = Math.cos(angle/180*Math.PI) * 10;
-    self.spdY = Math.sin(angle/180*Math.PI) * 10;
-    self.parent = parent;
+    self.angle = param.angle;
+    self.spdX = Math.cos(param.angle/180*Math.PI) * 10;
+	self.spdY = Math.sin(param.angle/180*Math.PI) * 10;
+	self.parent = param.parent;
 
     self.timer =  0;
     self.toRemove = false;
@@ -240,7 +295,7 @@ var Bullet = function(parent, angle) {
 
         for(var i in Player.list) {
             var p = Player.list[i];
-            if(self.getDistance(p) < 32 && self.parent !== p.id) {
+            if(self.map === p.map && self.getDistance(p) < 32 && self.parent !== p.id) {
                 // handle colision hp --;
                 p.hp -= 1;
  
@@ -261,7 +316,8 @@ var Bullet = function(parent, angle) {
 		return {
 			id:self.id,
 			x:self.x,
-			y:self.y,		
+			y:self.y,	
+            map:self.map,	
 		};
 	}
 	self.getUpdatePack = function(){
@@ -363,7 +419,7 @@ io.sockets.on('connection', function(socket){
         isValidPassword(data, function(res) {
             
             if(res) {
-                Player.onConnect(socket);
+                Player.onConnect(socket, data.username);
                 socket.emit('signInResponse', {success:true});
             }
             else
@@ -392,13 +448,7 @@ io.sockets.on('connection', function(socket){
 
     
 
-    socket.on('sendMsgToServer', function(data) {
-        var playerName = ("" + socket.id).slice(2,7);
-
-        for(var i in SOCKET_LIST) {
-            SOCKET_LIST[i].emit('addToChat', playerName + ": " + data);
-        }
-    }) 
+    
 
     socket.on('evalServer', function(data) {
         

@@ -11,6 +11,9 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines":{
+    "node": "10.19.0"
+  },
   "author": "",
   "license": "ISC",
   "description": ""
