@@ -46,3 +46,15 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }} 
+  
+  - deploy:
+
+      needs: build
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/ansible
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+  

@@ -1,0 +1,8 @@
+[aws]
+52.255.169.252
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=azureuser
+ansible_ssh_user=azureuser 
+ansible_python_interpreter=/usr/bin/python3.6
