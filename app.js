@@ -6,8 +6,8 @@ require('./Entity');
 require('./client/Inventory');
 
 
-var mongojs = require('mongojs');
-var db = mongojs('localhost:27017/myGame', ['account','progress']);
+// var mongojs = require('mongojs');
+// var db = mongojs('localhost:27017/myGame', ['account','progress']);
 
 
 
@@ -53,31 +53,35 @@ var USERS = {
 }
 
 var isValidPassword = function(data, cb) {
-    db.account.find({username:data.username, password:data.password}, function(err, res) {
-        if(res.length > 0) {
-            cb(true);
-        }
-        else {
-            cb(false);
-        }
-    });
+    // db.account.find({username:data.username, password:data.password}, function(err, res) {
+    //     if(res.length > 0) {
+    //         cb(true);
+    //     }
+    //     else {
+    //         cb(false);
+    //     }
+    // });
+    
+    cb(true);
 }
 
 var isUsernameTaken = function(data, cb) {
-    db.account.find({username:data.username}, function(err, res) {
-        if(res.length > 0) {
-            cb(true);
-        }
-        else {
-            cb(false);
-        }
-    });
+    // db.account.find({username:data.username}, function(err, res) {
+    //     if(res.length > 0) {
+    //         cb(true);
+    //     }
+    //     else {
+    //         cb(false);
+    //     }
+    // });
+
+    cb(true)
 }
 
 var addUser = function(data, cb) {
-    db.account.insert({username:data.username, password:data.password}, function(err) {
-       cb(); 
-    })
+    // db.account.insert({username:data.username, password:data.password}, function(err) {
+    //    cb(); 
+    // })
 
 }
 // #############################################################################
