@@ -3,5 +3,12 @@
   become: true
 
   tasks:
-    - name: running inside the slave server
-      shell: echo ls
+    - name: stop previous version docker
+      shell: docker stop treasurehunt
+    - name: remove stopped container
+      shell: docker rm -f treasurehunt
+    - name: remove docker images
+      shell: docker image rm -f vazravasu/treasurehunt:latest
+
+    - name: create docker image
+      shell: docker run -d -p 2000:2000 --name treasurehunt vazravasu/treasurehunt:latest
