@@ -6,8 +6,30 @@ require('./Entity');
 require('./client/Inventory');
 
 
-// var mongojs = require('mongojs');
-// var db = mongojs('localhost:27017/myGame', ['account','progress']);
+const mongoose = require('mongoose');
+const uri = 'mongodb+srv://client:treasureHunt@treasurhunt.mnpky.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+
+mongoose.connect(
+    uri,
+    { useFindAndModify: false, useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true},
+    (err) => {
+        if (err) return console.log("Error: ", err);
+        console.log("MongoDB Connection -- Ready state is:", mongoose.connection.readyState);
+    }
+);
+
+const accountSchema = new mongoose.Schema({
+    username: {type:String, required:true},
+    password: String
+     });
+
+const account = mongoose.model('account', accountSchema);
+
+
+
+
+
+
 
 
 
@@ -53,36 +75,38 @@ var USERS = {
     "bob3":"ttt",
 }
 
-var isValidPassword = function(data, cb) {
-    // db.account.find({username:data.username, password:data.password}, function(err, res) {
-    //     if(res.length > 0) {
-    //         cb(true);
-    //     }
-    //     else {
-    //         cb(false);
-    //     }
-    // });
+var isValidPassword = async function(data, cb) {
+  
+    const res = await account.find({username:data.username, password:data.password},function(err, res) {
+        if(res.length > 0) {
+            cb(true);
+        }
+        else {
+            cb(false);
+        }
+    }).lean()
+
+}
+
+var isUsernameTaken = async function(data, cb) {
+
+    const res = await account.find({username:data.username}, function(err, res) {
+        if(res.length > 0) {
+            cb(true);
+        }
+        else {
+            cb(false);
+        }
+    }).lean()
     
-    cb(true);
 }
 
-var isUsernameTaken = function(data, cb) {
-    // db.account.find({username:data.username}, function(err, res) {
-    //     if(res.length > 0) {
-    //         cb(true);
-    //     }
-    //     else {
-    //         cb(false);
-    //     }
-    // });
-
-    cb(true)
-}
-
-var addUser = function(data, cb) {
-    // db.account.insert({username:data.username, password:data.password}, function(err) {
+var addUser = async function(data, cb) {
+    // Account.insert({username:data.username, password:data.password}, function(err) {
     //    cb(); 
     // })
+
+    const res = await account.insertMany({username:data.username, password:data.password}, cb())
 
 }
 // #############################################################################
