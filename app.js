@@ -36,7 +36,7 @@ console.log("Server Started");
 // this is the list where the sockets of all the players connected to this 
 // server are stored
 
-var SOCKET_LIST = {};
+SOCKET_LIST = {};
 
 var DEBUG = true;
 

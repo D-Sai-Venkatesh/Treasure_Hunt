@@ -199,7 +199,9 @@
 			var hpWidth = 30 * self.hp / self.hpMax;
 			ctx.fillStyle = 'red';
 			ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4);
-			
+			ctx.fillStyle = 'white';
+            ctx.fillText(self.id, x - hpWidth/2,y - 50);
+
 			var width = Img.player.width*2;
 			var height = Img.player.height*2;
 			
