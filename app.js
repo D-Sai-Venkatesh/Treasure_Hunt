@@ -5,7 +5,9 @@
 require('./Entity');
 require('./client/Inventory');
 
-
+// #############################################################################
+//                               MONGO DB HANDLER
+// #############################################################################
 const mongoose = require('mongoose');
 const uri = 'mongodb+srv://client:treasureHunt@treasurhunt.mnpky.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 
@@ -25,14 +27,26 @@ const accountSchema = new mongoose.Schema({
 
 const account = mongoose.model('account', accountSchema);
 
+// #############################################################################
+//                               LOG4js INIT
+// #############################################################################
 
 
+const log4js = require('log4js');
+
+log4js.configure("./log4js_config.json");
+
+// Create the logger
+logger = log4js.getLogger();
+logger.level = 'info';
+
+// Grok pattern used
+// %{TIMESTAMP_ISO8601:timestamp_string} \[%{GREEDYDATA:logger}\] \[%{GREEDYDATA:username}\] \[%{GREEDYDATA:action}\]
 
 
-
-
-
-
+// #############################################################################
+//                               WEB PAGE HANDLER
+// #############################################################################
 
 var express = require('express');
 const { addListener } = require('process');
@@ -54,14 +68,14 @@ serv.listen(process.env.PORT || 2000);
 
 
 console.log("Server Started");
-
+// logger.info('[SERVER_STARTED]');
 
 // this is the list where the sockets of all the players connected to this 
 // server are stored
 
 SOCKET_LIST = {};
 
-var DEBUG = true;
+var DEBUG = false;
 
 
 
@@ -127,10 +141,12 @@ io.sockets.on('connection', function(socket){
             if(res) {
                 Player.onConnect(socket, data.username);
                 socket.emit('signInResponse', {success:true});
+                logger.info("[" + data.username + "] [LOGIN - SUCCESSFUL]");
             }
             else
             {
                 socket.emit('signInResponse', {success:false});
+                logger.info("[" + data.username + "] [LOGIN - UNSUCCESSFUL]");
             }
         })
         
@@ -141,11 +157,14 @@ io.sockets.on('connection', function(socket){
         isUsernameTaken(data, function(res){
             if(res) {
                 socket.emit('signUpResponse', {success:false});
+                logger.info("[" + data.username + "] [SIGNUP - UNSUCCESSFUL]");
+
             }
             else
             {
                 addUser(data, function() {
                     socket.emit('signUpResponse', {success:true});
+                    logger.info("[" + data.username + "] [SIGNUP - SUCCESSFUL]");
                 });
             }
         })
@@ -167,8 +186,10 @@ io.sockets.on('connection', function(socket){
     }) 
 
     socket.on('disconnect', function() {
+        logger.info("[" + Player.list[socket.id].username + "] [DISCONNECTED - SUCCESSFUL]");
         delete SOCKET_LIST[socket.id]
         Player.onDisconnect(socket)
+
     })
     
     

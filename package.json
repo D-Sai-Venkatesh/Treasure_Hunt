@@ -4,6 +4,7 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.17.1",
+    "log4js": "^6.3.0",
     "mongoose": "^5.12.7",
     "socket.io": "^4.0.1"
   },

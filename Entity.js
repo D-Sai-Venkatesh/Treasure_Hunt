@@ -98,8 +98,12 @@ Player = function(param) {
     }
 
     self.shootBullet = function(angle) {
-        if(Math.random() < 0.1)
-			self.inventory.addItem("potion",1);
+        if(Math.random() < 0.01)
+        {
+            self.inventory.addItem("POTION",1);
+            // logger.info("[" + self.username + "] [POTION - AQUIRED]");
+        }
+
         Bullet({
 			parent:self.id,
 			angle:angle,
@@ -169,8 +173,14 @@ Player.list = {};
 
 Player.onConnect = function(socket,username){
     var map = 'forest';
-	if(Math.random() < 0.5)
+    var mapl = "LIBRARY";
+	if(Math.random() < 0.5){
 		map = 'field';
+        mapl = "CASTEL";
+    }
+
+    logger.info("[" + username + "] [CONNECTED - SUCCESSFUL]");
+    logger.info("[" + username + "] [MAP - "+ mapl +"]");
 
     
     var player = Player({
@@ -201,10 +211,16 @@ Player.onConnect = function(socket,username){
     })
 
     socket.on('changeMap',function(data){
-		if(player.map === 'field')
+		if(player.map === 'field'){
 			player.map = 'forest';
+            logger.info("[" + username + "] [MAP - LIBRARY]");
+        }
+
 		else
+        {
 			player.map = 'field';
+            logger.info("[" + username + "] [MAP - CASTEL]");
+        }
 	});
 
     socket.on('sendMsgToServer',function(data){
@@ -296,7 +312,9 @@ Bullet = function(param) {
 						shooter.score += 1;
 					p.hp = p.hpMax;
 					p.x = Math.random() * 500;
-					p.y = Math.random() * 500;					
+					p.y = Math.random() * 500;	
+                    logger.info("[" + p.username + "] [DIED]");
+                    				
 				}
 				self.toRemove = true;
             }
