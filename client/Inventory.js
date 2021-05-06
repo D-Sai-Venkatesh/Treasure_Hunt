@@ -105,7 +105,7 @@ Item("POTION","POTION",function(player){
 });
 
 Item("SUPERATTACK","SUPERATTACK",function(player){
-	for(var i = 0 ; i < 360; i++)
+	for(var i = 0 ; i < 360; i = i + 10)
 		player.shootBullet(i);
 
 		player.inventory.removeItem("SUPERATTACK",1);

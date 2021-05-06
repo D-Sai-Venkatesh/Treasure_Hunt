@@ -295,7 +295,7 @@ Bullet = function(param) {
     
     var super_update = self.update;
     self.update = function() {
-        if(self.timer++ > 100) {
+        if(self.timer++ > 15) {
             self.toRemove = true;
         }
         super_update();
