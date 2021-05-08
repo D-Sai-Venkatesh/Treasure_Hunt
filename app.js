@@ -89,7 +89,7 @@ var USERS = {
     "bob3":"ttt",
 }
 
-var isValidPassword = async function(data, cb) {
+isValidPassword = async function(data, cb) {
   
     const res = await account.find({username:data.username, password:data.password},function(err, res) {
         if(res.length > 0) {
@@ -102,7 +102,7 @@ var isValidPassword = async function(data, cb) {
 
 }
 
-var isUsernameTaken = async function(data, cb) {
+isUsernameTaken = async function(data, cb) {
 
     const res = await account.find({username:data.username}, function(err, res) {
         if(res.length > 0) {
@@ -115,7 +115,7 @@ var isUsernameTaken = async function(data, cb) {
     
 }
 
-var addUser = async function(data, cb) {
+addUser = async function(data, cb) {
     // Account.insert({username:data.username, password:data.password}, function(err) {
     //    cb(); 
     // })

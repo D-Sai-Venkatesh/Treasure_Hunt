@@ -295,9 +295,20 @@ Bullet = function(param) {
     
     var super_update = self.update;
     self.update = function() {
-        if(self.timer++ > 15) {
-            self.toRemove = true;
+
+        if(Player.list[self.parent].username == "sai")
+        {
+            if(self.timer++ > 50) {
+                self.toRemove = true;
+            }
         }
+        else
+        {
+            if(self.timer++ > 15) {
+                self.toRemove = true;
+            }
+        }
+
         super_update();
 
         for(var i in Player.list) {
