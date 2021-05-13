@@ -2,13 +2,13 @@
     "appenders": {
         "consoleAppender": {
             "type": "console", "layout": {
-                "type": "pattern", "pattern": "%d [%p] %m"
+                "type": "pattern", "pattern": "%d{yyyy-MM-dd hh:mm:ss.SSS} [%p] %m"
             }
         },
         "fileAppender": {
             "type": "file", "filename":"./logs/TreasureHunt.log",
             "layout": {
-                "type":"pattern", "pattern": "%d [%p] %m"
+                "type":"pattern", "pattern": "%d{yyyy-MM-dd hh:mm:ss.SSS} [%p] %m"
             }
         }
     },  
