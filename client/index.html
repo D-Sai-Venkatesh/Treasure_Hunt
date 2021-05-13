@@ -40,7 +40,6 @@
 </div>
 
 
-
 <script src="/socket.io/socket.io.js"></script>
 <script src="/client/Inventory.js"></script>
 
@@ -61,11 +60,9 @@
     
     // --------------------------------------
     var signDivSignIn = document.getElementById('signDiv-signIn');
-
     signDivSignIn.onclick = function() {
         socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
     }
-
     socket.on('signInResponse', function(data) {
         if(data.success){
             signDiv.style.display = 'none';
@@ -78,11 +75,9 @@
     
     // ----------------------------
     var signDivSignUp = document.getElementById('signDiv-signUp');
-
     signDivSignUp.onclick = function() {
         socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
     }
-
     socket.on('signUpResponse', function(data) {
         if(data.success){
             alert("Sign Up successful.")
@@ -96,21 +91,9 @@
     // #############################################################################
     //                               CHAT LOGIC
     // #############################################################################
-    // game related stuff
     var chatText = document.getElementById('chat-text');
     var chatInput = document.getElementById('chat-input');
     var chatForm = document.getElementById('chat-form');
-    
-
-
-    // var happy = function() 
-    //     {
-    //         socket.emit('happy',{
-    //         reason:'its my birthday'
-    //     });
-    // }
-
-
     
     socket.on('addToChat', function(data){
         chatText.innerHTML += '<div>' + data + '</div>';
@@ -123,32 +106,34 @@
     chatForm.onsubmit = function(event) {
         event.preventDefault();
 
-        if(chatInput.value[0] === '/')
+        if(chatInput.value[0] === '/'){
             socket.emit('evalServer', chatInput.value.slice(1));
+        }
+
         else if(chatInput.value[0] === '@'){
-			//@username,message
 			socket.emit('sendPmToServer',{
 				username:chatInput.value.slice(1,chatInput.value.indexOf(',')),
 				message:chatInput.value.slice(chatInput.value.indexOf(',') + 1)
 			});
 		}
-        else
+
+        else{
             socket.emit('sendMsgToServer', chatInput.value);
-        
+        }
+
         chatInput.value = '';
     }
     
     // #############################################################################
-    //                                UI
+    //                               Map Change
     // #############################################################################
     
     var changeMap = function(){
 		socket.emit('changeMap');
-        // console.log("change map")
 	}
     
     // #############################################################################
-    //                               GAME LOGIC
+    //                              Initialisations
     // #############################################################################
     var inventory = new Inventory(socket, false);
 	
