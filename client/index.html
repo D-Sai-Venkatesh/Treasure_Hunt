@@ -50,22 +50,20 @@
 	var HEIGHT = 500;
 
     var socket = io();
+
     // #############################################################################
     //                               SIGN IN LOGIC
     // #############################################################################
-    // sign in related 
+
     var signDiv = document.getElementById('signDiv');
     var signDivUsername = document.getElementById('signDiv-username');
-    var signDivSignIn = document.getElementById('signDiv-signIn');
-    var signDivSignUp = document.getElementById('signDiv-signUp');
     var signDivPassword = document.getElementById('signDiv-password');
+    
+    // --------------------------------------
+    var signDivSignIn = document.getElementById('signDiv-signIn');
 
     signDivSignIn.onclick = function() {
         socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value});
-    }
-
-    signDivSignUp.onclick = function() {
-        socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
     }
 
     socket.on('signInResponse', function(data) {
@@ -77,6 +75,13 @@
             alert("Sign in unsuccessful.")
         }
     })
+    
+    // ----------------------------
+    var signDivSignUp = document.getElementById('signDiv-signUp');
+
+    signDivSignUp.onclick = function() {
+        socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value});
+    }
 
     socket.on('signUpResponse', function(data) {
         if(data.success){
@@ -229,7 +234,7 @@
 		self.y = initPack.y;
 		Bullet.list[self.id] = self;	
         self.map = initPack.map;
-       
+
         self.draw = function(){		
             if(Player.list[selfId].map !== self.map)
 				return;
@@ -338,7 +343,8 @@
 		ctxUi.fillStyle = 'white';
 		ctxUi.fillText(Player.list[selfId].score,0,30);
 	}
-	var lastScore = null;
+	
+    var lastScore = null;
 
 
     // #############################################################################

@@ -400,3 +400,8 @@ Bullet.update = function() {
     }
     return pack;
 }
+
+
+module.exports = function() {
+    return 'Entity Class';
+}

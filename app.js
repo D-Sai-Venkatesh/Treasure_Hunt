@@ -90,7 +90,7 @@ var USERS = {
 }
 
 isValidPassword = async function(data, cb) {
-  
+
     const res = await account.find({username:data.username, password:data.password},function(err, res) {
         if(res.length > 0) {
             cb(true);
@@ -194,7 +194,7 @@ io.sockets.on('connection', function(socket){
     
     
 
-  
+
 })
 
 // #############################################################################
@@ -215,3 +215,8 @@ setInterval(function(){
 	}
 	
 },1000/25);
+
+
+module.exports = function() {
+    return 'App Class';
+}
