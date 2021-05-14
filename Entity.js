@@ -229,17 +229,16 @@ Player.onConnect = function(socket,username){
 		}
 	});
 
-  socket.on('changeMap',function(data){
-  if(player.map === 'field'){
-    player.map = 'forest';
-          logger.info("[" + username + "] [MAP - LIBRARY]");
-      }
+    socket.on('changeMap',function(data){
+        if(player.map === 'field'){
+            player.map = 'forest';
+            logger.info("[" + username + "] [MAP - LIBRARY]");
+        }
 
-  else
-      {
-    player.map = 'field';
-          logger.info("[" + username + "] [MAP - CASTEL]");
-      }
+        else{
+            player.map = 'field';
+            logger.info("[" + username + "] [MAP - CASTEL]");
+        }
     });
 
 
@@ -300,7 +299,7 @@ Bullet = function(param) {
     self.angle = param.angle;
 	self.parent = param.parent;
   // bullet must have speed and angle
-  self.spdX = Math.cos(param.angle/180*Math.PI) * 10;
+    self.spdX = Math.cos(param.angle/180*Math.PI) * 10;
 	self.spdY = Math.sin(param.angle/180*Math.PI) * 10;
 
 // putting limit on no of frames of bullet 

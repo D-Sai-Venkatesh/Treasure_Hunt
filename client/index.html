@@ -30,7 +30,7 @@
 	
 	<div id="belowGame" style="margin-top:520px">	
 		<div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
-			<div>Hi!</div>
+			<div>Hello World!</div>
 		</div>
         <div id="inventory"></div>
 		<form id="chat-form">
@@ -189,8 +189,9 @@
 			var hpWidth = 30 * self.hp / self.hpMax;
 			ctx.fillStyle = 'red';
 			ctx.fillRect(x - hpWidth/2,y - 40,hpWidth,4);
+
 			ctx.fillStyle = 'white';
-            ctx.fillText(self.id, x - hpWidth/2,y - 50);
+            ctx.fillText(self.number, x - hpWidth/2,y - 50);
 
 			var width = Img.player.width*2;
 			var height = Img.player.height*2;
@@ -206,7 +207,8 @@
 		Player.list[self.id] = self;
 		return self;
 	}
-	Player.list = {};
+	
+    Player.list = {};
 
     // #############################################################################
     //                               BULLET
@@ -237,6 +239,7 @@
 
 		return self;
 	}
+
 	Bullet.list = {};
     var selfId = null;
 
@@ -301,34 +304,36 @@
     //                               GAME LOOP AND DRAW
     // #############################################################################
 
+
+    var drawMap = function(){
+        var player = Player.list[selfId];
+        var x = WIDTH/2 - player.x;
+        var y = HEIGHT/2 - player.y;
+        ctx.drawImage(Img.map[player.map],x,y);
+    }
+
+    var drawScore = function(){
+        if(lastScore === Player.list[selfId].score)
+            return;
+        ctxUi.clearRect(0,0,500,500);
+        lastScore = Player.list[selfId].score;
+        ctxUi.fillStyle = 'white';
+        ctxUi.fillText(Player.list[selfId].score,0,30);
+    }
+    
     setInterval(function(){
-		if(!selfId)
-			return;
+		if(!selfId) return;
 		ctx.clearRect(0,0,500,500);
+
 		drawMap();
 		drawScore();
+
 		for(var i in Player.list)
 			Player.list[i].draw();
 		for(var i in Bullet.list)
 			Bullet.list[i].draw();
 	},40);
 
-    var drawMap = function(){
-		var player = Player.list[selfId];
-		var x = WIDTH/2 - player.x;
-		var y = HEIGHT/2 - player.y;
-		ctx.drawImage(Img.map[player.map],x,y);
-	}
-
-    var drawScore = function(){
-		if(lastScore === Player.list[selfId].score)
-			return;
-        ctxUi.clearRect(0,0,500,500);
-		lastScore = Player.list[selfId].score;
-		ctxUi.fillStyle = 'white';
-		ctxUi.fillText(Player.list[selfId].score,0,30);
-	}
-	
     var lastScore = null;
 
 

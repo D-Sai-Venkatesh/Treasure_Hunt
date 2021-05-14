@@ -87,7 +87,7 @@ var USERS = {
     "bob":"asd",
     "bob2":"bob",
     "bob3":"ttt",
-}
+} 
 
 isValidPassword = async function(data, cb) {
 
