@@ -3,12 +3,12 @@
   become: true
 
   tasks:
-    - name: stop previous version docker
+    - name: Stop the running docker
       shell: docker stop treasurehunt
-    - name: remove stopped container
+    - name: Remove the docker
       shell: docker rm -f treasurehunt
-    - name: remove docker images
+    - name: Remove image of the docker
       shell: docker image rm -f vazravasu/treasurehunt:latest
 
-    - name: create docker image
+    - name: Download the latest docker and run
       shell: docker run -d -p 2000:2000 --name treasurehunt vazravasu/treasurehunt:latest
