@@ -299,8 +299,8 @@ Bullet = function(param) {
     self.angle = param.angle;
 	self.parent = param.parent;
   // bullet must have speed and angle
-    self.spdX = Math.cos(param.angle/180*Math.PI) * 10;
-	self.spdY = Math.sin(param.angle/180*Math.PI) * 10;
+    self.spdX = Math.cos(param.angle/180*Math.PI) * 15;
+	self.spdY = Math.sin(param.angle/180*Math.PI) * 15;
 
 // putting limit on no of frames of bullet 
     self.timer =  0;

@@ -23,7 +23,7 @@ mongoose.connect(
 const accountSchema = new mongoose.Schema({
     username: {type:String, required:true},
     password: String
-     });
+    });
 
 const account = mongoose.model('account', accountSchema);
 
